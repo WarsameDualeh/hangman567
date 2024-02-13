@@ -1,99 +1,185 @@
-'''
-Make sure you complete all the TODOs in this file.
-The prints have to contain the same text as indicated, don't add any more prints,
-or you will get 0 for this assignment.
-'''
+#########################################################
+## File Name: Hangman                              
+## Description: Project Hangman  
+import pygame
 import random
 
-class Hangman:
-    '''
-    A Hangman Game that asks the user for a letter and checks if it is in the word.
-    It starts with a default number of lives and a random word from the word_list.
+pygame.init()
+winHeight = 480
+winWidth = 700
+win=pygame.display.set_mode((winWidth,winHeight))
+#---------------------------------------#
+# initialize global variables/constants #
+#---------------------------------------#
+BLACK = (0,0, 0)
+WHITE = (255,255,255)
+RED = (255,0, 0)
+GREEN = (0,255,0)
+BLUE = (0,0,255)
+LIGHT_BLUE = (102,255,255)
 
+btn_font = pygame.font.SysFont("arial", 20)
+guess_font = pygame.font.SysFont("monospace", 24)
+lost_font = pygame.font.SysFont('arial', 45)
+word = ''
+buttons = []
+guessed = []
+hangmanPics = [pygame.image.load('hangman0.png'), pygame.image.load('hangman1.png'), pygame.image.load('hangman2.png'), pygame.image.load('hangman3.png'), pygame.image.load('hangman4.png'), pygame.image.load('hangman5.png'), pygame.image.load('hangman6.png')]
+
+limbs = 0
+
+
+def redraw_game_window():
+    global guessed
+    global hangmanPics
+    global limbs
+    win.fill(GREEN)
+    # Buttons
+    for i in range(len(buttons)):
+        if buttons[i][4]:
+            pygame.draw.circle(win, BLACK, (buttons[i][1], buttons[i][2]), buttons[i][3])
+            pygame.draw.circle(win, buttons[i][0], (buttons[i][1], buttons[i][2]), buttons[i][3] - 2
+                               )
+            label = btn_font.render(chr(buttons[i][5]), 1, BLACK)
+            win.blit(label, (buttons[i][1] - (label.get_width() / 2), buttons[i][2] - (label.get_height() / 2)))
+
+    spaced = spacedOut(word, guessed)
+    label1 = guess_font.render(spaced, 1, BLACK)
+    rect = label1.get_rect()
+    length = rect[2]
     
-    Parameters:
-    ----------
-    word_list: list
-        List of words to be used in the game
-    num_lives: int
-        Number of lives the player has
-    
-    Attributes:
-    ----------
-    word: str
-        The word to be guessed picked randomly from the word_list
-    word_guessed: list
-        A list of the letters of the word, with '_' for each letter not yet guessed
-        For example, if the word is 'apple', the word_guessed list would be ['_', '_', '_', '_', '_']
-        If the player guesses 'a', the list would be ['a', '_', '_', '_', '_']
-    num_letters: int
-        The number of UNIQUE letters in the word that have not been guessed yet
-    num_lives: int
-        The number of lives the player has
-    list_letters: list
-        A list of the letters that have already been tried
+    win.blit(label1,(winWidth/2 - length/2, 400))
 
-    Methods:
-    -------
-    check_letter(letter)
-        Checks if the letter is in the word.
-    ask_letter()
-        Asks the user for a letter.
-    '''
-    def __init__(self, word_list, num_lives=5):
-        # TODO 2: Initialize the attributes as indicated in the docstring
-        # TODO 2: Print two message upon initialization:
-        # 1. "The mistery word has {num_letters} characters"
-        # 2. {word_guessed}
-        pass
+    pic = hangmanPics[limbs]
+    win.blit(pic, (winWidth/2 - pic.get_width()/2 + 20, 150))
+    pygame.display.update()
 
-    def check_letter(self, letter) -> None:
-        '''
-        Checks if the letter is in the word.
-        If it is, it replaces the '_' in the word_guessed list with the letter.
-        If it is not, it reduces the number of lives by 1.
 
-        Parameters:
-        ----------
-        letter: str
-            The letter to be checked
+def randomWord():
+    file = open('words.txt')
+    f = file.readlines()
+    i = random.randrange(0, len(f) - 1)
 
-        '''
-        # TODO 3: Check if the letter is in the word. TIP: You can use the lower() method to convert the letter to lowercase
-        # TODO 3: If the letter is in the word, replace the '_' in the word_guessed list with the letter
-        # TODO 3: If the letter is in the word, the number of UNIQUE letters in the word that have not been guessed yet has to be reduced by 1
-        # TODO 3: If the letter is not in the word, reduce the number of lives by 1
-        # Be careful! A letter can contain the same letter more than once. TIP: Take a look at the index() method in the string class
-        pass
+    return f[i][:-1]
 
-    def ask_letter(self):
-        '''
-        Asks the user for a letter and checks two things:
-        1. If the letter has already been tried
-        2. If the character is a single character
-        If it passes both checks, it calls the check_letter method.
-        '''
-        # TODO 1: Ask the user for a letter iteratively until the user enters a valid letter
-        # TODO 1: Assign the letter to a variable called `letter`
-        # TODO 1: The letter has to comply with the following criteria: It has to be a single character. If it is not, print "Please, enter just one character"
-        # TODO 2. It has to be a letter that has not been tried yet. Use the list_letters attribute to check this. If it has been tried, print "{letter} was already tried".
-        # TODO 3: If the letter is valid, call the check_letter method
-        pass
 
-def play_game(word_list):
-    # As an aid, part of the code is already provided:
-    game = Hangman(word_list, num_lives=5)
-    # TODO 1: To test this task, you can call the ask_letter method
-    # TODO 2: To test this task, upon initialization, two messages should be printed 
-    # TODO 3: To test this task, you call the ask_letter method and check if the letter is in the word
-    
-    # TODO 4: Iteratively ask the user for a letter until the user guesses the word or runs out of lives
-    # If the user guesses the word, print "Congratulations! You won!"
-    # If the user runs out of lives, print "You lost! The word was {word}"
+def hang(guess):
+    global word
+    if guess.lower() not in word.lower():
+        return True
+    else:
+        return False
 
-    pass
 
-if __name__ == '__main__':
-    word_list = ['apple', 'banana', 'orange', 'pear', 'strawberry', 'watermelon']
-    play_game(word_list)
-# %%
+def spacedOut(word, guessed=[]):
+    spacedWord = ''
+    guessedLetters = guessed
+    for x in range(len(word)):
+        if word[x] != ' ':
+            spacedWord += '_ '
+            for i in range(len(guessedLetters)):
+                if word[x].upper() == guessedLetters[i]:
+                    spacedWord = spacedWord[:-2]
+                    spacedWord += word[x].upper() + ' '
+        elif word[x] == ' ':
+            spacedWord += ' '
+    return spacedWord
+            
+
+def buttonHit(x, y):
+    for i in range(len(buttons)):
+        if x < buttons[i][1] + 20 and x > buttons[i][1] - 20:
+            if y < buttons[i][2] + 20 and y > buttons[i][2] - 20:
+                return buttons[i][5]
+    return None
+
+
+def end(winner=False):
+    global limbs
+    lostTxt = 'You Lost, press any key to play again...'
+    winTxt = 'WINNER!, press any key to play again...'
+    redraw_game_window()
+    pygame.time.delay(1000)
+    win.fill(GREEN)
+
+    if winner == True:
+        label = lost_font.render(winTxt, 1, BLACK)
+    else:
+        label = lost_font.render(lostTxt, 1, BLACK)
+
+    wordTxt = lost_font.render(word.upper(), 1, BLACK)
+    wordWas = lost_font.render('The phrase was: ', 1, BLACK)
+
+    win.blit(wordTxt, (winWidth/2 - wordTxt.get_width()/2, 295))
+    win.blit(wordWas, (winWidth/2 - wordWas.get_width()/2, 245))
+    win.blit(label, (winWidth / 2 - label.get_width() / 2, 140))
+    pygame.display.update()
+    again = True
+    while again:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                again = False
+    reset()
+
+
+def reset():
+    global limbs
+    global guessed
+    global buttons
+    global word
+    for i in range(len(buttons)):
+        buttons[i][4] = True
+
+    limbs = 0
+    guessed = []
+    word = randomWord()
+
+#MAINLINE
+
+
+# Setup buttons
+increase = round(winWidth / 13)
+for i in range(26):
+    if i < 13:
+        y = 40
+        x = 25 + (increase * i)
+    else:
+        x = 25 + (increase * (i - 13))
+        y = 85
+    buttons.append([LIGHT_BLUE, x, y, 20, True, 65 + i])
+    # buttons.append([color, x_pos, y_pos, radius, visible, char])
+
+word = randomWord()
+inPlay = True
+
+while inPlay:
+    redraw_game_window()
+    pygame.time.delay(10)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            inPlay = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                inPlay = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            clickPos = pygame.mouse.get_pos()
+            letter = buttonHit(clickPos[0], clickPos[1])
+            if letter != None:
+                guessed.append(chr(letter))
+                buttons[letter - 65][4] = False
+                if hang(chr(letter)):
+                    if limbs != 5:
+                        limbs += 1
+                    else:
+                        end()
+                else:
+                    print(spacedOut(word, guessed))
+                    if spacedOut(word, guessed).count('_') == 0:
+                        end(True)
+
+pygame.quit()
+
+# always quit pygame when done!
